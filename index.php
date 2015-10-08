@@ -28,6 +28,24 @@ function send_curl($url) {
     // Close connection
     curl_close($ch);
 }
+function loadarea($playarea) {
+	include_once ('dbAccess.php');
+	$db = dbAccess::getInstance();
+    $db->setQuery("select * from agents where playarea like '%$playarea%'");
+	$agent = $db->loadAssocList();
+	if(empty($agent)){
+		return urlencode('No Agents Found in 📍'.$playarea.' Area');
+	}
+	$i = 1;
+	$reply = urlencode('Agents in 📍'.$playarea.' Area
+');
+       foreach ($agent as $agents) {
+            $reply .= urlencode($i . ') @' . $agents['username'] . ' - '.$agents['tel'].'
+');
+            $i++;
+        }
+    return $reply;
+}
 function loadprofile($username) {
 	include_once ('dbAccess.php');
 	$db = dbAccess::getInstance();
@@ -64,16 +82,16 @@ function send_response($input_raw) {
                     }';*/
     // let's log the raw JSON message first
     $messageobj = json_decode($input_raw, true);
-    $message_text = $messageobj['message']['text'];
+    $message_text = str_replace('@SLEnlDirBot','',$messageobj['message']['text']);
 	$message_part = explode(' ', strtolower($message_text));
-    $request_message = str_replace('@SLEnlDirBot','',$message_part[0]);
+    $request_message = $message_part[0];
     $chat_id = $messageobj['message']['chat']['id'];
 	$user_id = $messageobj['message']['from']['id'];
 	$username = $messageobj['message']['from']['username'];
-	$verified = in_array($chat_id,array(-34025370, -15987932, -39583346,-29377682));
+	$verified = in_array($chat_id,array( -32674710,-27924249)) || in_array($username,array("CMNisal","RamdeshLota"));
 	
 	if($request_message=="/addmetodir"){
-		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id'");
+		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id' OR username = '$username'");
 		$agent = $db->loadAssoc();
 		if(empty($agent)){
 			$reply = urlencode("@".$username.",
@@ -100,6 +118,12 @@ You are ".$messageobj['message']['from']['first_name']." ".$messageobj['message'
 		return;
 	}
 	if($request_message=="/getagent"){
+		if(!$verified){
+			$reply = urlencode("@".$username.",
+You/Your group is not Verified Group!");
+			send_curl(build_reply($chat_id,$reply));
+			return;
+		}
 		if($message_part[1]=='' || $message_part[1] == NULL){
 			$reply = urlencode("@".$username.",
 Who are you looking for");
@@ -117,7 +141,67 @@ Sorry,I don't know about ".$query);
 			send_curl(build_reply($chat_id,loadprofile($agent['username'])));
 		}
 		return;
-	}if($message_part[0]=="/editmytel"){
+	}if($request_message=="/getagentsbyarea"){
+		if(!$verified){
+			$reply = urlencode("@".$username.",
+You/Your group is not Verified Group!");
+			send_curl(build_reply($chat_id,$reply));
+			return;
+		}
+		if($message_part[1]=='' || $message_part[1] == NULL){
+			$reply = urlencode("@".$username.",
+What is the area you are looking for");
+			send_curl(build_forcereply($chat_id,$reply));
+			return;
+		}else{
+			send_curl(build_reply($chat_id,loadarea(str_replace('@','',$message_part[1]))));
+		}
+		return;
+	}
+	if($request_message=="/addagent"){
+		if($message_part[4]=='' ||$message_part[4]==NULL ){
+				$reply = urlencode("@".$username.",
+New Agent Adding format is
+/addagent <@agentname> <RealName> <tel> <playarea>");
+			send_curl(build_reply($chat_id,$reply));
+			return;
+			}
+		$query = str_replace('@','',$message_part[1]);
+		$db->setQuery("SELECT * FROM agents WHERE username = '$query' OR name LIKE '%$query%' ");
+		$agent = $db->loadAssoc();
+		if(empty($agent)){
+				$agent = new stdClass();
+				$agent->username = $message_part[1];
+				$agent->name = $message_part[2];
+				$agent->tel = $message_part[3];
+				$agent->playarea = $message_part[4];
+				$db->insertObject('agents', $agent);
+				$reply = urlencode("@".$username.",
+Your data Successfully saved.");
+				send_curl(build_reply($chat_id,$reply));
+				return;
+		}else{
+			$reply = urlencode("@".$username.",
+".ucfirst ($query)." is Already in the Database");
+			send_curl(build_reply($chat_id,$reply));
+		}
+		return;
+		
+	}
+	if($request_message=="/addmetodir"){
+		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id' OR username = '$username'");
+		$agent = $db->loadAssoc();
+		if(empty($agent)){
+			$reply = urlencode("@".$username.",
+What is your name.");
+			send_curl(build_forcereply($chat_id,$reply));				
+		}else{
+			$reply = "You are Already in the Directory.";
+			send_curl(build_reply($chat_id,$reply));
+		}
+		return;
+	}
+if($message_part[0]=="/editmytel"){
 		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id'");
 		$agent = $db->loadAssoc();
 		if(!empty($agent)){
@@ -142,6 +226,46 @@ Enter your correct playarea(s).");
 send /addmetodir to add you";
 			send_curl(build_reply($chat_id,$reply));
 		}
+		return;
+	}if($request_message=="/requestverify"){
+			if($verified){
+				$reply = urlencode("Already Verified");
+				send_curl(build_reply(38722085,$reply));
+				send_curl(build_reply(-27924249,$reply));				
+				return;
+			}
+			if($chat_id==$user_id){
+				$reply = urlencode("This is not a Group but Your request to verify you has been sent to bot Administrators.👍");
+			}else{
+			$reply = urlencode("Your request to verify this group has been sent to bot Administrators.
+You will notify when this group is added to verified list.
+Thank You.
+Bot Admin.");
+			}
+			send_curl(build_reply($chat_id,$reply));
+			$reply = urlencode("@CMNisal,
+#verifyRequest
+[".$chat_id."]".$messageobj['message']['chat']['title']);
+			send_curl(build_reply(38722085,$reply));			
+		return;
+	}
+	if($request_message=="/help" || $request_message=="/start"){
+			$reply = urlencode('This is the SL ENL Directory Bot. 
+Commands:
+/addmetodir - Add yourDetails
+/addagent - Add Another Agent
+/getme - Get your Details
+/editmytel - Edit Your Telephone
+/editmyplayarea - Edit your PlayArea(s)
+/requestverify - Request Verification
+/help - Display this help text.
+* /getagent - Get AgentDetails
+* /getagentsbyarea - Get AgentDetails by their Play Area     		
+
+
+*Verified Groups Only');
+
+			send_curl(build_reply($chat_id,$reply));			
 		return;
 	}
 	if(array_key_exists('reply_to_message', $messageobj['message'])){
@@ -192,11 +316,21 @@ What is your playarea(s)");
 				$reply = urlencode("@".$username.",
 Your data Successfully saved.");
 				$url = build_reply($chat_id,$reply);
+			}if (strpos($reply_to_message, 'the area') !== false) {
+				send_curl(build_reply($chat_id,loadarea(str_replace('@','',$message_text))));
+				return;
+			}if (strpos($reply_to_message, '#verifyRequest') !== false && $message_text=='👍') {
+				$chat_id = substr($reply_to_message,(strpos($reply_to_message,'[')+1),(strpos($reply_to_message,']')-1));
+				$reply = urlencode("👏👏👏
+				You've added to Verified List.
+Now you can use /getagent , /getagentsbyarea commands.");
+				send_curl(build_reply($chat_id,$reply));	
+				return;
 			}
 				send_curl($url);
 		}else{
 			$reply = urlencode("@".$username.",
-You are not @".$replyuser);
+You are not ".$replyuser);
 			send_curl(build_reply($chat_id,$reply));	
 		}
 		return;
