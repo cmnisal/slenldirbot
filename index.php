@@ -32,7 +32,11 @@ function loadprofile($username) {
 	include_once ('dbAccess.php');
 	$db = dbAccess::getInstance();
     $db->setQuery("select * from agents where username like '$username'");
-	
+	$agent = $db->loadAssoc();
+	$reply = urlencode("@".$username.",
+Name - ".$agent['name']."
+Telephone - ".$agent['tel']."
+PlayArea - ".$agent['playarea']."");
     return $reply;
 }
 
@@ -66,10 +70,9 @@ function send_response($input_raw) {
     $chat_id = $messageobj['message']['chat']['id'];
 	$user_id = $messageobj['message']['from']['id'];
 	$username = $messageobj['message']['from']['username'];
-	$replytobot = (array_key_exists('reply_to_message', $messageobj['message']));
-	$verified = array("CMNisal","RamdeshLota","Slpooh");
+	$verified = in_array($chat_id,array(-34025370, -15987932, -39583346,-29377682));
 	
-	if($message_part[0]=="/addmetodir"){
+	if($request_message=="/addmetodir"){
 		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id'");
 		$agent = $db->loadAssoc();
 		if(empty($agent)){
@@ -82,12 +85,83 @@ What is your name.");
 		}
 		return;
 	}
-	if($replytobot){
+	if($request_message=="/getme"){
+		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id'");
+		$agent = $db->loadAssoc();
+		if(empty($agent)){
+			$reply = urlencode("@".$username.",
+You are ".$messageobj['message']['from']['first_name']." ".$messageobj['message']['from']['last_name'].".
+ I can't say more about you.");
+			send_curl(build_reply($chat_id,$reply));				
+		}else{
+			send_curl(build_reply($chat_id,loadprofile($agent['username'])));
+
+		}
+		return;
+	}
+	if($request_message=="/getagent"){
+		if($message_part[1]=='' || $message_part[1] == NULL){
+			$reply = urlencode("@".$username.",
+Who are you looking for");
+			send_curl(build_forcereply($chat_id,$reply));
+			return;
+		}
+		$query = str_replace('@','',$message_part[1]);
+		$db->setQuery("SELECT * FROM agents WHERE username = '$query' OR name LIKE '%$query%' ");
+		$agent = $db->loadAssoc();
+		if(empty($agent)){
+			$reply = urlencode("@".$username.",
+Sorry,I don't know about ".$query);
+			send_curl(build_reply($chat_id,$reply));				
+		}else{
+			send_curl(build_reply($chat_id,loadprofile($agent['username'])));
+		}
+		return;
+	}if($message_part[0]=="/editmytel"){
+		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id'");
+		$agent = $db->loadAssoc();
+		if(!empty($agent)){
+			$reply = urlencode("@".$username.",
+Enter your correct Telephone.");
+			send_curl(build_forcereply($chat_id,$reply));				
+		}else{
+			$reply = "You are not in the Directory.
+send /addmetodir to add you";
+			send_curl(build_reply($chat_id,$reply));
+		}
+		return;
+	}if($request_message=="/editmyplayarea"){
+		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id'");
+		$agent = $db->loadAssoc();
+		if(!empty($agent)){
+			$reply = urlencode("@".$username.",
+Enter your correct playarea(s).");
+			send_curl(build_forcereply($chat_id,$reply));				
+		}else{
+			$reply = "You are not in the Directory.
+send /addmetodir to add you";
+			send_curl(build_reply($chat_id,$reply));
+		}
+		return;
+	}
+	if(array_key_exists('reply_to_message', $messageobj['message'])){
 		$reply_to_message = $messageobj['message']['reply_to_message']['text'];//botReply
 		$replyuser = substr($reply_to_message,0, strpos($reply_to_message, ','));
 		if($replyuser=='@'.$username){
+			if (strpos($reply_to_message, 'Who') !== false) {
+			$query = str_replace('@','',$message_text);
+		$db->setQuery("SELECT * FROM agents WHERE username = '$query' OR name LIKE '%$query%' ");
+		$agent = $db->loadAssoc();
+		if(empty($agent)){
+			$reply = urlencode("@".$username.",
+Sorry,I don't know about ".$query);
+			send_curl(build_reply($chat_id,$reply));				
+		}else{
+			send_curl(build_reply($chat_id,loadprofile($agent['username'])));
+		}
+		return;
+			}
 			if (strpos($reply_to_message, 'name') !== false) {
-			//ask name
 				$agent = new stdClass();
 				$agent->tgid = $user_id;
 				$agent->username = $username;
@@ -99,8 +173,11 @@ What is your Telephone no.");
 			}if (strpos($reply_to_message, 'Telephone') !== false) {
 				$agent = new stdClass();
 				$agent->username = $username;
-				$agent->telephone = $message_text;
+				$agent->tel = $message_text;
 				$db->updateObject('agents', $agent, 'username');
+				if (strpos($reply_to_message, 'correct') !== false){
+					send_curl(build_reply($chat_id,"👍"));
+					return;}
 				$reply = urlencode("@".$username.",
 What is your playarea(s)");
 				$url = build_forcereply($chat_id,$reply);
@@ -109,6 +186,9 @@ What is your playarea(s)");
 				$agent->username = $username;
 				$agent->playarea = $message_text;
 				$db->updateObject('agents', $agent, 'username');
+				if (strpos($reply_to_message, 'correct') !== false){
+					send_curl(build_reply($chat_id,"👍"));
+					return;}
 				$reply = urlencode("@".$username.",
 Your data Successfully saved.");
 				$url = build_reply($chat_id,$reply);
@@ -116,7 +196,7 @@ Your data Successfully saved.");
 				send_curl($url);
 		}else{
 			$reply = urlencode("@".$username.",
-You are not -".$replyuser);
+You are not @".$replyuser);
 			send_curl(build_reply($chat_id,$reply));	
 		}
 		return;
