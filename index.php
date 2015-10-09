@@ -52,9 +52,9 @@ function loadprofile($username) {
     $db->setQuery("select * from agents where username like '$username'");
 	$agent = $db->loadAssoc();
 	$reply = urlencode("@".$username.",
-Name - ".$agent['name']."
-Telephone - ".$agent['tel']."
-PlayArea - ".$agent['playarea']."");
+👤Name - ".$agent['name']."
+📞Telephone - ".$agent['tel']."
+📍PlayArea - ".$agent['playarea']."");
     return $reply;
 }
 
