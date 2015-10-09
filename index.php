@@ -88,7 +88,7 @@ function send_response($input_raw) {
     $chat_id = $messageobj['message']['chat']['id'];
 	$user_id = $messageobj['message']['from']['id'];
 	$username = $messageobj['message']['from']['username'];
-	$verified = in_array($chat_id,array( -32674710,-27924249)) || in_array($username,array("CMNisal","RamdeshLota"));
+	$verified = in_array($chat_id,array(-32674710,-27924249,-35458778,-15987932)) || in_array($username,array("CMNisal","RamdeshLota"));
 	
 	if($request_message=="/addmetodir"){
 		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id' OR username = '$username'");
@@ -171,7 +171,7 @@ New Agent Adding format is
 		$agent = $db->loadAssoc();
 		if(empty($agent)){
 				$agent = new stdClass();
-				$agent->username = $message_part[1];
+				$agent->username = $query;
 				$agent->name = $message_part[2];
 				$agent->tel = $message_part[3];
 				$agent->playarea = $message_part[4];
@@ -230,8 +230,7 @@ send /addmetodir to add you";
 	}if($request_message=="/requestverify"){
 			if($verified){
 				$reply = urlencode("Already Verified");
-				send_curl(build_reply(38722085,$reply));
-				send_curl(build_reply(-27924249,$reply));				
+				send_curl(build_reply($chat_id,$reply));				
 				return;
 			}
 			if($chat_id==$user_id){
@@ -244,9 +243,10 @@ Bot Admin.");
 			}
 			send_curl(build_reply($chat_id,$reply));
 			$reply = urlencode("@CMNisal,
-#verifyRequest
+New #verifyRequest from ".$username."
 [".$chat_id."]".$messageobj['message']['chat']['title']);
-			send_curl(build_reply(38722085,$reply));			
+			send_curl(build_reply(38722085,$reply));
+			send_curl(build_reply(-27924249,$reply));			
 		return;
 	}
 	if($request_message=="/help" || $request_message=="/start"){
@@ -316,6 +316,7 @@ What is your playarea(s)");
 				$reply = urlencode("@".$username.",
 Your data Successfully saved.");
 				$url = build_reply($chat_id,$reply);
+				send_curl(build_reply(38722085,loadprofile($agent['username'])));
 			}if (strpos($reply_to_message, 'the area') !== false) {
 				send_curl(build_reply($chat_id,loadarea(str_replace('@','',$message_text))));
 				return;
