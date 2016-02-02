@@ -89,12 +89,7 @@ function send_response($input_raw) {
 	$user_id = $messageobj['message']['from']['id'];
 	$username = $messageobj['message']['from']['username'];
 	$verifieduser = in_array($username,array("CMNisal","RamdeshLota"));
-	$verified = in_array($chat_id,array(-32674710,-27924249,-15987932,-15472707)) || $verifieduser;
-	
-	if($chat_id==-15987932){
-		return;
-	}
-	
+	$verified = in_array($chat_id,array(-1001007541919,-32674710,-27924249,-15987932,-15472707)) || $verifieduser;	
 	
 	if($request_message=="/addmetodir"){
 		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id' OR username = '$username'");
