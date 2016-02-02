@@ -104,6 +104,25 @@ What is your name.");
 		}
 		return;
 	}
+	if($request_message=="/help" || $request_message=="/start"){
+			$reply = urlencode('This is the SL ENL Directory Bot.
+Created by @CMNisal 
+Commands:
+/addmetodir - Add yourDetails
+/addagent - Add Another Agent
+/getme - Get your Details
+/editmytel - Edit Your Telephone
+/editmyplayarea - Edit your PlayArea(s)
+/requestverify - Request Verification
+/help - Display this help text.
+* /getagent - Get AgentDetails
+* /getagentsbyarea - Get AgentDetails by their Play Area     		
+
+*Verified Groups/Agents Only');
+
+			send_curl(build_reply($chat_id,$reply));			
+		return;
+	}
 	if($request_message=="/getme"){
 		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id' OR username = '$username'");
 		$agent = $db->loadAssoc();
@@ -207,7 +226,7 @@ What is your name.");
 		}
 		return;
 	}
-if($message_part[0]=="/editmytel"){
+	if($request_message=="/editmytel"){
 		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id' OR username = '$username'");
 		$agent = $db->loadAssoc();
 		if(!empty($agent)){
@@ -220,7 +239,8 @@ send /addmetodir to add you";
 			send_curl(build_reply($chat_id,$reply));
 		}
 		return;
-	}if($request_message=="/editmyplayarea"){
+	}
+	if($request_message=="/editmyplayarea"){
 		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id' OR username = '$username'");
 		$agent = $db->loadAssoc();
 		if(!empty($agent)){
@@ -255,25 +275,7 @@ New #verifyRequest from ".$username."
 			send_curl(build_reply(-27924249,$reply));			
 		return;
 	}
-	if($request_message=="/help" || $request_message=="/start"){
-			$reply = urlencode('This is the SL ENL Directory Bot. 
-Commands:
-/addmetodir - Add yourDetails
-/addagent - Add Another Agent
-/getme - Get your Details
-/editmytel - Edit Your Telephone
-/editmyplayarea - Edit your PlayArea(s)
-/requestverify - Request Verification
-/help - Display this help text.
-* /getagent - Get AgentDetails
-* /getagentsbyarea - Get AgentDetails by their Play Area     		
-
-
-*Verified Groups Only');
-
-			send_curl(build_reply($chat_id,$reply));			
-		return;
-	}if(array_key_exists('contact', $messageobj['message'])){
+if(array_key_exists('contact', $messageobj['message'])){
 		$contact = $messageobj['message']['contact'];
 		$name = $contact['first_name']." ".$contact['last_name'];
 		$user_id = $contact['user_id'];
