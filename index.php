@@ -37,7 +37,7 @@ function loadarea($playarea) {
 		return urlencode('No Agents Found in 📍'.$playarea.' Area');
 	}
 	$i = 1;
-	$reply = urlencode('Agents in 📍'.$playarea.' Area
+	$reply = urlencode('Agents in '.$playarea.' Area
 ');
        foreach ($agent as $agents) {
             $reply .= urlencode($i . ') @' . $agents['username'] . ' - '.$agents['tel'].'
