@@ -27,7 +27,7 @@ function send_curl($url) {
     }
     // Close connection
     curl_close($ch);
-}
+} 
 function loadarea($playarea) {
 	include_once ('dbAccess.php');
 	$db = dbAccess::getInstance();
