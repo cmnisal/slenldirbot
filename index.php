@@ -106,7 +106,7 @@ What is your name.");
 	}if($request_message=="/agentcount"){
 		$db->setQuery("SELECT COUNT(*) AS count FROM agents");
 		$agent = $db->loadAssoc();
-		$reply = "SL ENL Directory Registered Agents ?? - .".$agent['count'];
+		$reply = "SL ENL Directory Registered Agents 🕵 - ".$agent['count'];
 		send_curl(build_reply($chat_id,$reply));
 		
 		return;
