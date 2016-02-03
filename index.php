@@ -103,6 +103,13 @@ What is your name.");
 			send_curl(build_reply($chat_id,$reply));
 		}
 		return;
+	}if($request_message=="/agentcount"){
+		$db->setQuery("SELECT COUNT(*) AS count FROM agents");
+		$agent = $db->loadAssoc();
+		$reply = "SL ENL Directory Registered Agents ?? - .".$agent['count'];
+		send_curl(build_reply($chat_id,$reply));
+		
+		return;
 	}
 	if($request_message=="/help" || $request_message=="/start"){
 			$reply = urlencode('This is the SL ENL Directory Bot.
