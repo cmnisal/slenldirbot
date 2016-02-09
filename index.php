@@ -90,10 +90,12 @@ function send_response($input_raw) {
 	$username = $messageobj['message']['from']['username'];
 	$verifieduser = in_array($username,array("CMNisal","RamdeshLota"));
 	$verified = in_array($chat_id,array(-1001007541919,-32674710,-27924249,-15987932,-15472707)) || $verifieduser;	
-	$banned = in_array($user_id,array(111138322,111071450));
+	$banned = in_array($user_id,array(111138322));
 	if($banned){
-			$reply = urlencode("@".$username.",
-Please...😏");
+			$reply = urlencode("@".$username." ,
+Oh Please...😏
+You have nothing to do with me."
+);
 			send_curl(build_reply($chat_id,$reply));
 		return;
 	}if($request_message=="/addmetodir"){
