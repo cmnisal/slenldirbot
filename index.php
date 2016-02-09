@@ -90,8 +90,12 @@ function send_response($input_raw) {
 	$username = $messageobj['message']['from']['username'];
 	$verifieduser = in_array($username,array("CMNisal","RamdeshLota"));
 	$verified = in_array($chat_id,array(-1001007541919,-32674710,-27924249,-15987932,-15472707)) || $verifieduser;	
-	
-	if($request_message=="/addmetodir"){
+	$nonverified = in_array($username,array("CMNisal"));
+	if($nonverified){
+			$reply = $username.", Please...??";
+			send_curl(build_reply($chat_id,$reply));
+		return;
+	}if($request_message=="/addmetodir"){
 		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id' OR username = '$username'");
 		$agent = $db->loadAssoc();
 		if(empty($agent)){
