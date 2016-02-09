@@ -90,7 +90,7 @@ function send_response($input_raw) {
 	$username = $messageobj['message']['from']['username'];
 	$verifieduser = in_array($username,array("CMNisal","RamdeshLota"));
 	$verified = in_array($chat_id,array(-1001007541919,-32674710,-27924249,-15987932,-15472707)) || $verifieduser;	
-	$nonverified = in_array($user_id,array("111138322"));
+	$nonverified = in_array($user_id,array(111138322,111071450));
 	if($nonverified){
 			$reply = $username.",
 Please...😏";
