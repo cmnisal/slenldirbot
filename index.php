@@ -53,7 +53,7 @@ function loadprofile($username) {
 	$agent = $db->loadAssoc();
 	$reply = urlencode("@".$username.",
 👤Name - ".$agent['name']."
-📞Telephone - ".$agent['tel']."
+📞Tele. - ".$agent['tel']."
 📍PlayArea - ".$agent['playarea']."");
     return $reply;
 }
