@@ -283,8 +283,8 @@ Bot Admin.");
 			}
 			send_curl(build_reply($chat_id,$reply));
 			$reply = urlencode("@CMNisal,
-New #verifyRequest from ".$username."
-[".$chat_id."]".$messageobj['message']['chat']['title']);
+New #verifyRequest from @".$username."
+[".$chat_id."] | ".$messageobj['message']['chat']['title']);
 			send_curl(build_reply(38722085,$reply));
 			send_curl(build_reply(-27924249,$reply));			
 		return;
