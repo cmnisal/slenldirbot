@@ -88,7 +88,7 @@ function send_response($input_raw) {
     $chat_id = $messageobj['message']['chat']['id'];
 	$user_id = $messageobj['message']['from']['id'];
 	$username = $messageobj['message']['from']['username'];
-	$verifieduser = in_array($username,array("CMNisal","RamdeshLota"));
+	$verifieduser = in_array($username,array("Nisal","CMNisal","RamdeshLota"));
 	$verified = in_array($chat_id,array(-1001007541919,-32674710,-27924249,-15987932,-15472707)) || $verifieduser;	
 	$banned = in_array($user_id,array());
 	if($banned){
