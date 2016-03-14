@@ -4,14 +4,14 @@
  */
 
 function build_reply($chat_id, $text) {
-    $returnvalue = 'https://api.telegram.org/bot115962358:AAEIAdDOp1xUlFBOM_B8e0-nWZN7Y146Cp0/sendMessage?chat_id='
+    $returnvalue = 'https://api.telegram.org/bot208632377:AAHyyVpDX4KQWo4vW2LgkBE4zv-A6ougOG0/sendMessage?chat_id='
             . $chat_id . '&text=' . $text.'&disable_web_page_preview=true';
     return $returnvalue;
 }
 function build_forcereply($chat_id,$text) {
 	$markup['force_reply'] = true;
 	$markup['selective'] = true;
-    $returnvalue = 'https://api.telegram.org/bot115962358:AAEIAdDOp1xUlFBOM_B8e0-nWZN7Y146Cp0/sendMessage?chat_id='
+    $returnvalue = 'https://api.telegram.org/bot208632377:AAHyyVpDX4KQWo4vW2LgkBE4zv-A6ougOG0/sendMessage?chat_id='
         . $chat_id . '&text=' . $text . '&reply_markup=' . json_encode($markup);
     return $returnvalue;
 }
