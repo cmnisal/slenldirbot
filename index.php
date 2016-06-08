@@ -8,6 +8,11 @@ function build_reply($chat_id, $text) {
             . $chat_id . '&text=' . $text.'&disable_web_page_preview=true';
     return $returnvalue;
 }
+function build_contact($chat_id, $phone_number,$first_name,$last_name) {
+    $returnvalue = 'https://api.telegram.org/bot208632377:AAHyyVpDX4KQWo4vW2LgkBE4zv-A6ougOG0/sendContact?chat_id='
+            . $chat_id . '&phone_number=' . $phone_number.'&first_name='.$first_name . '&last_name=' . $last_name;
+    return $returnvalue;
+}
 function build_forcereply($chat_id,$text) {
 	$markup['force_reply'] = true;
 	$markup['selective'] = true;
@@ -55,9 +60,11 @@ function loadprofile($username) {
 👤Name - ".$agent['name']."
 📞Tele. - ".$agent['tel']."
 📍PlayArea - ".$agent['playarea']."");
-    return $reply;
-}
 
+    return $reply;
+    }
+
+global $chat_id;
 function send_response($input_raw) {
 	include_once ('dbAccess.php');
 	$db = dbAccess::getInstance();
@@ -89,16 +96,8 @@ function send_response($input_raw) {
 	$user_id = $messageobj['message']['from']['id'];
 	$username = $messageobj['message']['from']['username'];
 	$verifieduser = in_array($username,array("Nisal","CMNisal","RamdeshLota"));
-	$verified = in_array($chat_id,array(-1001007541919,-32674710,-27924249,-15987932,-15472707)) || $verifieduser;	
-	$banned = in_array($user_id,array());
-	if($banned){
-			$reply = urlencode("@".$username." ,
-Oh Please...😏
-You have nothing to do with me."
-);
-			send_curl(build_reply($chat_id,$reply));
-		return;
-	}if($request_message=="/addmetodir"){
+	$verified = in_array($chat_id,array(-1001007541919,-32674710,-27924249,-15987932,-15472707,-1001043010498)) || $verifieduser;	
+	if($request_message=="/addmetodir"){
 		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id' OR username = '$username'");
 		$agent = $db->loadAssoc();
 		if(empty($agent)){
@@ -154,7 +153,8 @@ You are ".$messageobj['message']['from']['first_name']." ".$messageobj['message'
 	if($request_message=="/getagent"){
 		if(!$verified){
 			$reply = urlencode("@".$username.",
-You/Your group is not Verified!");
+You/Your group is not Verified!
+@SLEnlDirectory for the Verified Group open for Queries.");
 			send_curl(build_reply($chat_id,$reply));
 			return;
 		}
@@ -173,6 +173,8 @@ Sorry,I don't know about ".$query);
 			send_curl(build_reply($chat_id,$reply));				
 		}else{
 			send_curl(build_reply($chat_id,loadprofile($agent['username'])));
+$name = explode(" ",$agent['name']);
+send_curl(build_contact($chat_id,$agent['tel'] ,$name[0],$name[1]));
 		}
 		return;
 	}	if($request_message=="/deleteagent"){
@@ -324,6 +326,8 @@ Sorry,I don't know about ".$query);
 			send_curl(build_reply($chat_id,$reply));				
 		}else{
 			send_curl(build_reply($chat_id,loadprofile($agent['username'])));
+$name = explode(" ",$agent['name']);
+send_curl(build_contact($chat_id,$agent['tel'] ,$name[0],$name[1]));
 		}
 		return;
 			}
