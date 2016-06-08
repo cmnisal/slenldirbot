@@ -77,7 +77,7 @@ function send_response($input_raw) {
                           "id": 38722085,
                           "first_name": "Ramindu \"RamdeshLota\"",
                           "last_name": "Deshapriya",
-                          "username": "CMNisal"
+                          "username": "Nisal"
                         },
                         "chat": {
                           "id":38722085,
