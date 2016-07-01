@@ -154,7 +154,7 @@ You are ".$messageobj['message']['from']['first_name']." ".$messageobj['message'
 		if(!$verified){
 			$reply = urlencode("@".$username.",
 You/Your group is not Verified!
-@SLEnlDirectory for the Verified Group open for Queries.");
+[SLEnlDirectory](https://telegram.me/joinchat/C7bpLj4rE8LQtJNjWII61w) for the Verified Group open for Queries.");
 			send_curl(build_reply($chat_id,$reply));
 			return;
 		}
@@ -207,7 +207,8 @@ Agent Profile Deleted!");
 	}if($request_message=="/getagentsbyarea"){
 		if(!$verified){
 			$reply = urlencode("@".$username.",
-You/Your group is not Verified Group!");
+You/Your group is not Verified Group!
+[SLEnlDirectory](https://telegram.me/joinchat/C7bpLj4rE8LQtJNjWII61w) for the Verified Group open for Queries.");
 			send_curl(build_reply($chat_id,$reply));
 			return;
 		}
