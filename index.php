@@ -96,7 +96,7 @@ function send_response($input_raw) {
 	$user_id = $messageobj['message']['from']['id'];
 	$username = $messageobj['message']['from']['username'];
 	$verifieduser = in_array($username,array("Nisal","CMNisal","RamdeshLota"));
-	$verified = in_array($chat_id,array(-1001007541919,-32674710,-27924249,-15987932,-15472707,-1001043010498)) || $verifieduser;	
+	$verified = in_array($chat_id,array(-1001007541919,-32674710,-27924249,-15987932,-15472707,-1001043010498,-1001098855200)) || $verifieduser;	
 	if($request_message=="/addmetodir"){
 		$db->setQuery("SELECT * FROM agents WHERE tgid = '$user_id' OR username = '$username'");
 		$agent = $db->loadAssoc();
@@ -154,7 +154,7 @@ You are ".$messageobj['message']['from']['first_name']." ".$messageobj['message'
 		if(!$verified){
 			$reply = urlencode("@".$username.",
 You/Your group is not Verified!
-[SLEnlDirectory](https://telegram.me/joinchat/C7bpLj4rE8LQtJNjWII61w) for the Verified Group open for Queries.");
+[SLEnlDirectory](https://telegram.me/joinchat/EnlGenOPs) for the Verified Group open for Queries.");
 			send_curl(build_reply($chat_id,$reply));
 			return;
 		}
